@@ -5,6 +5,16 @@ package catworks.luna.session;
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/empty.proto";
 
+service SessionService {
+  rpc startSession(StartSessionRq) returns (SessionData);
+
+  rpc validateSession(SessionData) returns (google.protobuf.Empty);
+
+  rpc endSession(SessionData) returns (google.protobuf.Empty);
+
+  rpc getInfo(google.protobuf.Empty) returns (ServiceInfo);
+}
+
 enum DeviceType {
   MOBILE = 0;
   TV = 2;
@@ -32,14 +42,4 @@ message ServiceInfo {
   string name = 1;
 
   string version = 2;
-}
-
-service SessionService {
-  rpc startSession(StartSessionRq) returns (SessionData);
-
-  rpc validateSession(SessionData) returns (google.protobuf.Empty);
-
-  rpc endSession(SessionData) returns (google.protobuf.Empty);
-
-  rpc getInfo(google.protobuf.Empty) returns (ServiceInfo);
 }
