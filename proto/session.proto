@@ -1,0 +1,45 @@
+syntax = "proto3";
+
+package catworks.luna.session;
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+
+enum DeviceType {
+  MOBILE = 0;
+  TV = 2;
+}
+
+message SessionData {
+  string sessionId = 1;
+
+  DeviceType deviceType = 2;
+
+  string token = 3;
+
+  optional google.protobuf.Timestamp expiresAt = 4;
+}
+
+message StartSessionRq {
+  DeviceType deviceType = 1;
+
+  optional string otp = 2;
+
+  optional google.protobuf.Timestamp expiresAt = 3;
+}
+
+message ServiceInfo {
+  string name = 1;
+
+  string version = 2;
+}
+
+service SessionService {
+  rpc startSession(StartSessionRq) returns (SessionData);
+
+  rpc validateSession(SessionData) returns (google.protobuf.Empty);
+
+  rpc endSession(SessionData) returns (google.protobuf.Empty);
+
+  rpc getInfo(google.protobuf.Empty) returns (ServiceInfo);
+}
