@@ -61,7 +61,7 @@ message PlayerState {
   message PlayerActive {
     string mediaId = 1;
 
-    PlaybackState playback = 2;
+    PlaybackState.PlaybackActive playback = 2;
   }
 }
 
