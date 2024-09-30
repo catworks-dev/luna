@@ -1,0 +1,82 @@
+syntax = "proto3";
+
+package catworks.luna.library;
+
+import "google/protobuf/empty.proto";
+import "session.proto";
+
+service LibraryService {
+  rpc listMedia(google.protobuf.Empty) returns (MediaListRs);
+
+  rpc deleteMedia(MediaData) returns (google.protobuf.Empty);
+
+  // Controls playback on another device.
+  //
+  // The returned stream contains updates to the playback status on the other device.
+  //
+  // If the device specified in SetPlaybackRq is controlled by another session, an error is thrown.
+  rpc setPlayback(stream SetPlaybackRq) returns (stream PlayerState);
+
+  // Sends information to the server about the playback status within the current session.
+  //
+  // The returned stream contains commands from other devices.
+  //
+  // To notify the server that it is ready to play, the client sends the idle version of PlayerState.
+  rpc notifyPlayback(stream PlayerState) returns (stream PlayerState);
+}
+
+message MediaListRs {
+  repeated MediaData media = 1;
+}
+
+message SetPlaybackRq {
+  session.SessionReference device = 1;
+
+  PlayerState state = 2;
+}
+
+message MediaData {
+  string id = 1;
+
+  string playbackUrl = 2;
+
+  string pictureUrl = 3;
+
+  uint64 size = 4;
+
+  uint64 duration = 5;
+
+  PlaybackState state = 6;
+}
+
+message PlayerState {
+  oneof player {
+    PlayerIdle idle = 1;
+
+    PlayerActive active = 2;
+  }
+
+  message PlayerIdle {}
+
+  message PlayerActive {
+    string mediaId = 1;
+
+    PlaybackState playback = 2;
+  }
+}
+
+message PlaybackState {
+  oneof playback {
+    PlaybackIdle idle = 1;
+
+    PlaybackActive active = 2;
+  }
+
+  message PlaybackIdle {}
+
+  message PlaybackActive {
+    uint64 position = 1;
+
+    bool isPaused = 2;
+  }
+}
