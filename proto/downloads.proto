@@ -1,0 +1,70 @@
+syntax = "proto3";
+
+package catworks.luna.downloads;
+
+import "google/protobuf/empty.proto";
+
+service DownloadService {
+  rpc start(StartDownloadRq) returns (DownloadData);
+
+  rpc pause(DownloadReference) returns (DownloadData);
+
+  // Provides the ability to control the path and priority of downloads.
+  // In response, returns a stream with all download updates (progress is updated once per second).
+  rpc control(stream UpdateDownloadRq) returns (stream DownloadData);
+
+  rpc abort(DownloadReference) returns (google.protobuf.Empty);
+}
+
+enum DownloadPriority {
+  LOW = 0;
+  MEDIUM = 1;
+  HIGH = 2;
+}
+
+message DownloadReference {
+  string id = 1;
+}
+
+message UpdateDownloadRq {
+  string id = 1;
+
+  optional string path = 2;
+
+  optional DownloadPriority priority = 3;
+}
+
+message StartDownloadRq {
+  string url = 1;
+
+  optional string path = 2;
+
+  optional DownloadPriority priority = 3;
+}
+
+message DownloadData {
+  string id = 1;
+
+  string url = 2;
+
+  DownloadPriority priority = 3;
+
+  oneof status {
+    DownloadStatusIdle pending = 4;
+
+    DownloadStatusActive progress = 5;
+
+    DownloadStatusActive paused = 6;
+
+    DownloadStatusIdle error = 7;
+  }
+
+  // File size in bytes.
+  optional uint64 size = 8;
+
+  message DownloadStatusIdle {}
+
+  message DownloadStatusActive {
+    double progress = 1;
+  }
+}
