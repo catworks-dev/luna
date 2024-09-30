@@ -8,11 +8,14 @@ import "google/protobuf/empty.proto";
 service SessionService {
   rpc startSession(StartSessionRq) returns (SessionData);
 
-  rpc validateSession(SessionData) returns (google.protobuf.Empty);
+  // Retrieves SessionData for the current session via token from the request header.
+  rpc getCurrentSession(google.protobuf.Empty) returns (SessionData);
 
-  rpc endSession(SessionData) returns (google.protobuf.Empty);
+  rpc renameSession(RenameSessionRq) returns (google.protobuf.Empty);
 
   rpc listSessions(google.protobuf.Empty) returns (SessionList);
+
+  rpc logout(google.protobuf.Empty) returns (google.protobuf.Empty);
 
   rpc getInfo(google.protobuf.Empty) returns (ServiceInfo);
 }
@@ -29,25 +32,37 @@ message SessionList {
 message SessionReference {
   string sessionId = 1;
 
-  DeviceType deviceType = 2;
+  string name = 2;
+
+  DeviceType deviceType = 3;
 }
 
 message SessionData {
   string sessionId = 1;
 
-  DeviceType deviceType = 2;
+  string name = 2;
 
-  string token = 3;
+  DeviceType deviceType = 3;
 
-  optional google.protobuf.Timestamp expiresAt = 4;
+  string token = 4;
+
+  optional google.protobuf.Timestamp expiresAt = 5;
 }
 
 message StartSessionRq {
   DeviceType deviceType = 1;
 
-  optional string otp = 2;
+  string name = 2;
 
-  optional google.protobuf.Timestamp expiresAt = 3;
+  optional string otp = 3;
+
+  optional google.protobuf.Timestamp expiresAt = 4;
+}
+
+message RenameSessionRq {
+  string name = 1;
+
+  optional SessionReference session = 2;
 }
 
 message ServiceInfo {
