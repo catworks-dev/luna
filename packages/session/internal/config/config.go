@@ -17,7 +17,7 @@ type GrpcConfig struct {
 	Timeout time.Duration `yaml:"timeout"`
 }
 
-func RequireConfig(path string) *Config {
+func Require(path string) *Config {
 	if path == "" {
 		panic("Config path must not be empty")
 	}
