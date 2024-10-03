@@ -13,9 +13,10 @@ var rootCmd = &cobra.Command{
 	Short: "Session service for Luna app",
 	Run: func(cmd *cobra.Command, args []string) {
 		configPath := cmd.Flag("config").Value.String()
-		config := config.Require(configPath)
+		cfg := config.Require(configPath)
 
-		fmt.Printf("%+v\n", config)
+		container, _ := config.NewContainer(cfg)
+		fmt.Printf("%+v\n", container.Config)
 	},
 }
 

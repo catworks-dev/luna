@@ -1,2 +1,3 @@
 config.yaml
 pkg/protogo
+wire_gen.go
