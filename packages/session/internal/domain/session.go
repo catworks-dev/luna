@@ -21,11 +21,11 @@ type Session struct {
 }
 
 type SessionStorage interface {
+	Create(ctx context.Context, session *Session) error
+
 	Get(ctx context.Context, id string) (*Session, error)
 	GetByToken(ctx context.Context, token string) (*Session, error)
 	List(ctx context.Context) ([]*Session, error)
-
-	Create(ctx context.Context, session *Session) error
 
 	Update(ctx context.Context, session *Session) error
 
