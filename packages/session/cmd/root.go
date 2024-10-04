@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"catworks/luna/session/internal/config"
-	"fmt"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -16,7 +15,7 @@ var rootCmd = &cobra.Command{
 		cfg := config.Require(configPath)
 
 		container, _ := config.NewContainer(cfg)
-		fmt.Printf("%+v\n", container.Config)
+		container.Logger.WithField("config", container.Config).Info("Config loaded")
 	},
 }
 
