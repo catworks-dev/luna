@@ -25,13 +25,7 @@ type sessionStorageImpl struct {
 
 func (s sessionStorageImpl) Create(ctx context.Context, session *domain.Session) error {
 	return s.db.WithContext(ctx).Create(
-		&Session{
-			Id:        session.Id,
-			Name:      session.Name,
-			Type:      session.Type,
-			Token:     session.Token,
-			ExpiresAt: session.ExpiresAt,
-		},
+		s.sessionFromDomain(session),
 	).Error
 }
 
@@ -42,13 +36,7 @@ func (s sessionStorageImpl) Get(ctx context.Context, id string) (*domain.Session
 		return nil, err
 	}
 
-	return &domain.Session{
-		Id:        session.Id,
-		Name:      session.Name,
-		Type:      session.Type,
-		Token:     session.Token,
-		ExpiresAt: session.ExpiresAt,
-	}, nil
+	return s.sessionToDomain(&session), nil
 }
 
 func (s sessionStorageImpl) GetByToken(ctx context.Context, token string) (*domain.Session, error) {
@@ -58,13 +46,7 @@ func (s sessionStorageImpl) GetByToken(ctx context.Context, token string) (*doma
 		return nil, err
 	}
 
-	return &domain.Session{
-		Id:        session.Id,
-		Name:      session.Name,
-		Type:      session.Type,
-		Token:     session.Token,
-		ExpiresAt: session.ExpiresAt,
-	}, nil
+	return s.sessionToDomain(&session), nil
 }
 
 func (s sessionStorageImpl) List(ctx context.Context) ([]*domain.Session, error) {
@@ -76,13 +58,7 @@ func (s sessionStorageImpl) List(ctx context.Context) ([]*domain.Session, error)
 
 	var result []*domain.Session
 	for _, session := range sessions {
-		result = append(result, &domain.Session{
-			Id:        session.Id,
-			Name:      session.Name,
-			Type:      session.Type,
-			Token:     session.Token,
-			ExpiresAt: session.ExpiresAt,
-		})
+		result = append(result, s.sessionToDomain(&session))
 	}
 
 	return result, nil
@@ -90,12 +66,7 @@ func (s sessionStorageImpl) List(ctx context.Context) ([]*domain.Session, error)
 
 func (s sessionStorageImpl) Update(ctx context.Context, session *domain.Session) error {
 	return s.db.WithContext(ctx).Model(&Session{}).Where("id = ?", session.Id).Updates(
-		&Session{
-			Name:      session.Name,
-			Type:      session.Type,
-			Token:     session.Token,
-			ExpiresAt: session.ExpiresAt,
-		},
+		s.sessionFromDomain(session),
 	).Error
 }
 
@@ -105,4 +76,24 @@ func (s sessionStorageImpl) Delete(ctx context.Context, id string) error {
 
 func (s sessionStorageImpl) DeleteByToken(ctx context.Context, token string) error {
 	return s.db.WithContext(ctx).Delete(&Session{}, "token = ?", token).Error
+}
+
+func (s sessionStorageImpl) sessionFromDomain(session *domain.Session) *Session {
+	return &Session{
+		Id:        session.Id,
+		Name:      session.Name,
+		Type:      session.Type,
+		Token:     session.Token,
+		ExpiresAt: session.ExpiresAt,
+	}
+}
+
+func (s sessionStorageImpl) sessionToDomain(session *Session) *domain.Session {
+	return &domain.Session{
+		Id:        session.Id,
+		Name:      session.Name,
+		Type:      session.Type,
+		Token:     session.Token,
+		ExpiresAt: session.ExpiresAt,
+	}
 }
