@@ -2,12 +2,9 @@ package cmd
 
 import (
 	"catworks/luna/session/internal/config"
-	"catworks/luna/session/internal/domain"
-	"catworks/luna/session/internal/repository"
-	"os"
-	"time"
-
+	"catworks/luna/session/internal/di"
 	"github.com/spf13/cobra"
+	"os"
 )
 
 var rootCmd = &cobra.Command{
@@ -17,18 +14,15 @@ var rootCmd = &cobra.Command{
 		configPath := cmd.Flag("config").Value.String()
 		cfg := config.Require(configPath)
 
-		container, _ := config.NewContainer(cfg)
-		db := container.DB
+		container, _ := di.NewContainer(cfg)
+		server := container.Server
 
-		db.Create(
-			&repository.Session{
-				Id:        "abracadabra",
-				Name:      "test",
-				Type:      domain.MOBILE,
-				Token:     "token",
-				ExpiresAt: time.Now().Add(cfg.SessionTTL),
-			},
-		)
+		server.Register()
+
+		err := server.Start()
+		if err != nil {
+			container.Logger.WithError(err).Fatal("Failed to start server")
+		}
 	},
 }
 
