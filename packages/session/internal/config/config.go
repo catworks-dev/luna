@@ -12,6 +12,7 @@ type Config struct {
 	SessionTTL  time.Duration `yaml:"session_ttl" env-default:"2160h"`
 	Grpc        GrpcConfig    `yaml:"grpc"`
 	LogLevel    string        `yaml:"log_level" env-default:"info"`
+	Version     string        `yaml:"version" env-default:"v0.1.0"`
 }
 
 type GrpcConfig struct {
