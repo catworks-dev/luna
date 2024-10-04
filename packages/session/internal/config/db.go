@@ -1,6 +1,7 @@
 package config
 
 import (
+	"catworks/luna/session/internal/repository"
 	"context"
 	"github.com/sirupsen/logrus"
 	"gorm.io/driver/sqlite"
@@ -8,6 +9,10 @@ import (
 	"gorm.io/gorm/logger"
 	"time"
 )
+
+var models = []interface{}{
+	&repository.Session{},
+}
 
 func NewGorm(config *Config, logger *logrus.Logger) *gorm.DB {
 	db, err := gorm.Open(
@@ -19,6 +24,11 @@ func NewGorm(config *Config, logger *logrus.Logger) *gorm.DB {
 
 	if err != nil {
 		logger.WithError(err).Fatal("Failed to connect to database")
+		panic(err)
+	}
+
+	if err := db.AutoMigrate(models...); err != nil {
+		logger.WithError(err).Fatal("Failed to migrate database")
 		panic(err)
 	}
 
