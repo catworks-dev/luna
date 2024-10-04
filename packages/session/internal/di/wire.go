@@ -1,28 +1,32 @@
 //go:build wireinject
 
-package config
+package di
 
 import (
+	"catworks/luna/session/internal/config"
 	"catworks/luna/session/internal/domain"
 	"catworks/luna/session/internal/repository"
+	"catworks/luna/session/internal/transport/rpc"
 	"github.com/google/wire"
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 )
 
 type Container struct {
-	Config         *Config
+	Config         *config.Config
 	Logger         *logrus.Logger
 	DB             *gorm.DB
 	SessionStorage domain.SessionStorage
+	Server         *rpc.Server
 }
 
-func NewContainer(cfg *Config) (*Container, error) {
+func NewContainer(cfg *config.Config) (*Container, error) {
 	panic(
 		wire.Build(
-			NewLogger,
-			NewGorm,
+			config.NewLogger,
+			config.NewGorm,
 			repository.NewSessionRepository,
+			rpc.NewServer,
 			wire.Struct(new(Container), "*"),
 		),
 	)

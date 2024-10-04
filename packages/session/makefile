@@ -6,5 +6,5 @@ proto:
 		session.proto
 
 di:
-	@cd ./internal/config && \
+	@cd ./internal/di && \
 	wire gen
