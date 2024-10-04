@@ -2,7 +2,10 @@ package cmd
 
 import (
 	"catworks/luna/session/internal/config"
+	"catworks/luna/session/internal/domain"
+	"catworks/luna/session/internal/repository"
 	"os"
+	"time"
 
 	"github.com/spf13/cobra"
 )
@@ -15,7 +18,17 @@ var rootCmd = &cobra.Command{
 		cfg := config.Require(configPath)
 
 		container, _ := config.NewContainer(cfg)
-		container.Logger.WithField("config", container.Config).Info("Config loaded")
+		db := container.DB
+
+		db.Create(
+			&repository.Session{
+				Id:        "abracadabra",
+				Name:      "test",
+				Type:      domain.MOBILE,
+				Token:     "token",
+				ExpiresAt: time.Now().Add(cfg.SessionTTL),
+			},
+		)
 	},
 }
 
