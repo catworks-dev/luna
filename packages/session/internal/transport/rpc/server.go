@@ -27,12 +27,13 @@ type sessionServiceApi struct {
 	protogo.UnimplementedSessionServiceServer
 }
 
-func NewServer(cfg *config.Config, logger *logrus.Logger) *Server {
+func NewServer(cfg *config.Config, logger *logrus.Logger, sessionUc *domain.SessionUseCase) *Server {
 	s := &Server{
 		cfg: cfg.Grpc,
 		session: &sessionServiceApi{
-			config: cfg,
-			logger: logger,
+			config:    cfg,
+			logger:    logger,
+			sessionUc: *sessionUc,
 		},
 	}
 	s.Srv = grpc.NewServer(
@@ -47,11 +48,11 @@ func NewServer(cfg *config.Config, logger *logrus.Logger) *Server {
 	return s
 }
 
-func (s Server) Register() {
+func (s *Server) Register() {
 	protogo.RegisterSessionServiceServer(s.Srv, s.session)
 }
 
-func (s Server) Start() error {
+func (s *Server) Start() error {
 	l, err := net.Listen("tcp", fmt.Sprintf("localhost:%d", s.cfg.Port))
 	if err != nil {
 		return err
@@ -65,6 +66,6 @@ func (s Server) Start() error {
 	return nil
 }
 
-func (s Server) Stop() {
+func (s *Server) Stop() {
 	s.Srv.Stop()
 }

@@ -11,7 +11,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-func (s sessionServiceApi) StartSession(ctx context.Context, rq *protogo.StartSessionRq) (*protogo.SessionData, error) {
+func (s *sessionServiceApi) StartSession(ctx context.Context, rq *protogo.StartSessionRq) (*protogo.SessionData, error) {
 	var deviceType domain.DeviceType
 	switch rq.DeviceType {
 	case protogo.DeviceType_MOBILE:
@@ -33,7 +33,7 @@ func (s sessionServiceApi) StartSession(ctx context.Context, rq *protogo.StartSe
 	return s.sessionToRpc(session), nil
 }
 
-func (s sessionServiceApi) GetCurrentSession(ctx context.Context, _ *emptypb.Empty) (*protogo.SessionData, error) {
+func (s *sessionServiceApi) GetCurrentSession(ctx context.Context, _ *emptypb.Empty) (*protogo.SessionData, error) {
 	session, err := s.sessionFromAuth(ctx)
 	if err != nil {
 		return nil, err
@@ -42,7 +42,7 @@ func (s sessionServiceApi) GetCurrentSession(ctx context.Context, _ *emptypb.Emp
 	return s.sessionToRpc(session), nil
 }
 
-func (s sessionServiceApi) RenameSession(ctx context.Context, rq *protogo.RenameSessionRq) (*emptypb.Empty, error) {
+func (s *sessionServiceApi) RenameSession(ctx context.Context, rq *protogo.RenameSessionRq) (*emptypb.Empty, error) {
 	session, err := s.sessionFromAuth(ctx)
 	if err != nil {
 		return nil, err
@@ -65,7 +65,7 @@ func (s sessionServiceApi) RenameSession(ctx context.Context, rq *protogo.Rename
 	return &emptypb.Empty{}, nil
 }
 
-func (s sessionServiceApi) ListSessions(ctx context.Context, _ *emptypb.Empty) (*protogo.SessionList, error) {
+func (s *sessionServiceApi) ListSessions(ctx context.Context, _ *emptypb.Empty) (*protogo.SessionList, error) {
 	if _, err := s.sessionFromAuth(ctx); err != nil {
 		return nil, err
 	}
@@ -85,7 +85,7 @@ func (s sessionServiceApi) ListSessions(ctx context.Context, _ *emptypb.Empty) (
 	}, nil
 }
 
-func (s sessionServiceApi) Logout(ctx context.Context, _ *emptypb.Empty) (*emptypb.Empty, error) {
+func (s *sessionServiceApi) Logout(ctx context.Context, _ *emptypb.Empty) (*emptypb.Empty, error) {
 	session, err := s.sessionFromAuth(ctx)
 	if err != nil {
 		return nil, err
@@ -98,7 +98,7 @@ func (s sessionServiceApi) Logout(ctx context.Context, _ *emptypb.Empty) (*empty
 	return &emptypb.Empty{}, nil
 }
 
-func (s sessionServiceApi) GetInfo(_ context.Context, _ *emptypb.Empty) (*protogo.ServiceInfo, error) {
+func (s *sessionServiceApi) GetInfo(_ context.Context, _ *emptypb.Empty) (*protogo.ServiceInfo, error) {
 	return &protogo.ServiceInfo{
 		Name:    "luna.session",
 		Version: s.config.Version,
@@ -107,7 +107,7 @@ func (s sessionServiceApi) GetInfo(_ context.Context, _ *emptypb.Empty) (*protog
 
 // <editor-fold desc="Adapters">
 
-func (s sessionServiceApi) sessionToRpc(session *domain.Session) *protogo.SessionData {
+func (s *sessionServiceApi) sessionToRpc(session *domain.Session) *protogo.SessionData {
 	return &protogo.SessionData{
 		SessionId:  session.Id,
 		Name:       session.Name,
@@ -117,7 +117,7 @@ func (s sessionServiceApi) sessionToRpc(session *domain.Session) *protogo.Sessio
 	}
 }
 
-func (s sessionServiceApi) sessionToRpcReference(session *domain.Session) *protogo.SessionReference {
+func (s *sessionServiceApi) sessionToRpcReference(session *domain.Session) *protogo.SessionReference {
 	return &protogo.SessionReference{
 		SessionId:  session.Id,
 		Name:       session.Name,
@@ -127,7 +127,7 @@ func (s sessionServiceApi) sessionToRpcReference(session *domain.Session) *proto
 
 // </editor-fold>
 
-func (s sessionServiceApi) sessionFromAuth(ctx context.Context) (*domain.Session, error) {
+func (s *sessionServiceApi) sessionFromAuth(ctx context.Context) (*domain.Session, error) {
 	md, _ := metadata.FromIncomingContext(ctx)
 	token := md.Get("authorization")[0]
 
