@@ -13,6 +13,7 @@ type Config struct {
 	Grpc        GrpcConfig    `yaml:"grpc"`
 	LogLevel    string        `yaml:"log_level" env-default:"info"`
 	Version     string        `yaml:"version" env-default:"v0.1.0"`
+	JwtSecret   string        `yaml:"jwt_secret" env-required:"true"`
 }
 
 type GrpcConfig struct {
