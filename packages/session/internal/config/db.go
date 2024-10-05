@@ -12,23 +12,30 @@ var models = []interface{}{
 	&repository.Session{},
 }
 
-func NewGorm(config *Config, logger *logrus.Logger) *gorm.DB {
+type GormOptions struct {
+	Config *Config
+	Logger *logrus.Logger
+}
+
+func NewGorm(opts *GormOptions) *gorm.DB {
 	gormConfig := &gorm.Config{}
-	if config.logDB {
-		gormConfig.Logger = gl.New()
+	if opts.Config.LogDB {
+		l := gl.New()
+		l.SkipErrRecordNotFound = true
+		gormConfig.Logger = l
 	}
 	db, err := gorm.Open(
-		sqlite.Open(config.StoragePath),
+		sqlite.Open(opts.Config.StoragePath),
 		gormConfig,
 	)
 
 	if err != nil {
-		logger.WithError(err).Fatal("Failed to connect to database")
+		opts.Logger.WithError(err).Fatal("Failed to connect to database")
 		panic(err)
 	}
 
 	if err := db.AutoMigrate(models...); err != nil {
-		logger.WithError(err).Fatal("Failed to migrate database")
+		opts.Logger.WithError(err).Fatal("Failed to migrate database")
 		panic(err)
 	}
 

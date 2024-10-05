@@ -15,11 +15,17 @@ type sessionUseCaseImpl struct {
 	jwtService     domain.JWTService
 }
 
-func NewSessionUseCase(cfg *config.Config, sessionStorage domain.SessionStorage, jwtService domain.JWTService) domain.SessionUseCase {
+type SessionUseCaseOptions struct {
+	Config         *config.Config
+	SessionStorage domain.SessionStorage
+	JWTService     domain.JWTService
+}
+
+func NewSessionUseCase(opts *SessionUseCaseOptions) domain.SessionUseCase {
 	return &sessionUseCaseImpl{
-		cfg:            cfg,
-		sessionStorage: sessionStorage,
-		jwtService:     jwtService,
+		cfg:            opts.Config,
+		sessionStorage: opts.SessionStorage,
+		jwtService:     opts.JWTService,
 	}
 }
 

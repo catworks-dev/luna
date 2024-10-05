@@ -14,14 +14,13 @@ var rootCmd = &cobra.Command{
 		configPath := cmd.Flag("config").Value.String()
 		cfg := config.Require(configPath)
 
-		container, _ := di.NewContainer(cfg)
-		server := container.Server
+		server, _ := di.NewServer(cfg)
 
 		server.Register()
 
 		err := server.Start()
 		if err != nil {
-			container.Logger.WithError(err).Fatal("Failed to start server")
+			panic(err)
 		}
 	},
 }

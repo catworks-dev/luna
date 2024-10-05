@@ -27,21 +27,28 @@ type sessionServiceApi struct {
 	protogo.UnimplementedSessionServiceServer
 }
 
-func NewServer(cfg *config.Config, logger *logrus.Logger, sessionUc domain.SessionUseCase) *Server {
+type ServerOptions struct {
+	Config *config.Config
+	Logger *logrus.Logger
+
+	SessionUseCase domain.SessionUseCase
+}
+
+func NewServer(opts *ServerOptions) *Server {
 	s := &Server{
-		cfg: cfg.Grpc,
+		cfg: opts.Config.Grpc,
 		session: &sessionServiceApi{
-			config:    cfg,
-			logger:    logger,
-			sessionUc: sessionUc,
+			config:    opts.Config,
+			logger:    opts.Logger,
+			sessionUc: opts.SessionUseCase,
 		},
 	}
 	s.Srv = grpc.NewServer(
 		grpc.ChainUnaryInterceptor(
-			grpc_logrus.UnaryServerInterceptor(logrus.NewEntry(logger)),
+			grpc_logrus.UnaryServerInterceptor(logrus.NewEntry(opts.Logger)),
 		),
 		grpc.ChainStreamInterceptor(
-			grpc_logrus.StreamServerInterceptor(logrus.NewEntry(logger)),
+			grpc_logrus.StreamServerInterceptor(logrus.NewEntry(opts.Logger)),
 		),
 	)
 

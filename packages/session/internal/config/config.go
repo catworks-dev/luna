@@ -14,7 +14,7 @@ type Config struct {
 	LogLevel    string        `yaml:"log_level" env-default:"info"`
 	Version     string        `yaml:"version" env-default:"v0.1.0"`
 	JwtSecret   string        `yaml:"jwt_secret" env-required:"true"`
-	logDB       bool          `yaml:"log_db" env-default:"false"`
+	LogDB       bool          `yaml:"log_db" env-default:"false"`
 }
 
 type GrpcConfig struct {
@@ -33,14 +33,14 @@ func Require(path string) *Config {
 
 	var cfg Config
 	if err := cleanenv.ReadConfig(path, &cfg); err != nil {
-		panic("Unable to read config file: " + err.Error())
+		panic("Unable to read Config file: " + err.Error())
 	}
 
 	return &cfg
 }
 
 func NewLogger(config *Config) *logrus.Logger {
-	logger := logrus.New()
+	logger := logrus.StandardLogger()
 	logger.SetFormatter(&logrus.TextFormatter{})
 	logger.SetOutput(os.Stdout)
 
