@@ -2,6 +2,7 @@ package rpc
 
 import (
 	"catworks/luna/session/internal/config"
+	"catworks/luna/session/internal/domain"
 	"catworks/luna/session/pkg/protogo"
 	"fmt"
 	"github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus"
@@ -20,6 +21,8 @@ type Server struct {
 type sessionServiceApi struct {
 	config *config.Config
 	logger *logrus.Logger
+
+	sessionUc domain.SessionUseCase
 
 	protogo.UnimplementedSessionServiceServer
 }
