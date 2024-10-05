@@ -12,16 +12,8 @@ import (
 )
 
 func (s *sessionServiceApi) StartSession(ctx context.Context, rq *protogo.StartSessionRq) (*protogo.SessionData, error) {
-	var deviceType domain.DeviceType
-	switch rq.DeviceType {
-	case protogo.DeviceType_MOBILE:
-		deviceType = domain.MOBILE
-	case protogo.DeviceType_TV:
-		deviceType = domain.TV
-	}
-
 	usecaseRq := domain.CreateSessionRq{
-		Type: deviceType,
+		Type: s.deviceTypeFromRpc(rq.DeviceType),
 		Name: rq.Name,
 	}
 
@@ -107,11 +99,29 @@ func (s *sessionServiceApi) GetInfo(_ context.Context, _ *emptypb.Empty) (*proto
 
 // <editor-fold desc="Adapters">
 
+func (s *sessionServiceApi) deviceTypeFromRpc(deviceType protogo.DeviceType) domain.DeviceType {
+	var typeMap = map[protogo.DeviceType]domain.DeviceType{
+		protogo.DeviceType_MOBILE: domain.MOBILE,
+		protogo.DeviceType_TV:     domain.TV,
+	}
+
+	return typeMap[deviceType]
+}
+
+func (s *sessionServiceApi) deviceTypeToRpc(deviceType domain.DeviceType) protogo.DeviceType {
+	var typeMap = map[domain.DeviceType]protogo.DeviceType{
+		domain.MOBILE: protogo.DeviceType_MOBILE,
+		domain.TV:     protogo.DeviceType_TV,
+	}
+
+	return typeMap[deviceType]
+}
+
 func (s *sessionServiceApi) sessionToRpc(session *domain.Session) *protogo.SessionData {
 	return &protogo.SessionData{
 		SessionId:  session.Id,
 		Name:       session.Name,
-		DeviceType: protogo.DeviceType(session.Type),
+		DeviceType: s.deviceTypeToRpc(session.Type),
 		Token:      session.Token,
 		ExpiresAt:  timestamppb.New(session.ExpiresAt),
 	}
@@ -121,7 +131,7 @@ func (s *sessionServiceApi) sessionToRpcReference(session *domain.Session) *prot
 	return &protogo.SessionReference{
 		SessionId:  session.Id,
 		Name:       session.Name,
-		DeviceType: protogo.DeviceType(session.Type),
+		DeviceType: s.deviceTypeToRpc(session.Type),
 	}
 }
 
