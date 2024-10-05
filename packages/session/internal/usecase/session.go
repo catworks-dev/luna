@@ -14,9 +14,10 @@ type sessionUseCaseImpl struct {
 	jwtService     domain.JWTService
 }
 
-func NewSessionUseCase(sessionStorage *domain.SessionStorage, jwtService domain.JWTService) domain.SessionUseCase {
-	return &sessionUseCaseImpl{sessionStorage: *sessionStorage,
-		jwtService: jwtService,
+func NewSessionUseCase(sessionStorage domain.SessionStorage, jwtService domain.JWTService) domain.SessionUseCase {
+	return &sessionUseCaseImpl{
+		sessionStorage: sessionStorage,
+		jwtService:     jwtService,
 	}
 }
 

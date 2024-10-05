@@ -27,13 +27,13 @@ type sessionServiceApi struct {
 	protogo.UnimplementedSessionServiceServer
 }
 
-func NewServer(cfg *config.Config, logger *logrus.Logger, sessionUc *domain.SessionUseCase) *Server {
+func NewServer(cfg *config.Config, logger *logrus.Logger, sessionUc domain.SessionUseCase) *Server {
 	s := &Server{
 		cfg: cfg.Grpc,
 		session: &sessionServiceApi{
 			config:    cfg,
 			logger:    logger,
-			sessionUc: *sessionUc,
+			sessionUc: sessionUc,
 		},
 	}
 	s.Srv = grpc.NewServer(
