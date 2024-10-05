@@ -9,13 +9,15 @@ import (
 )
 
 type sessionUseCaseImpl struct {
-	config         *config.Config
+	cfg *config.Config
+
 	sessionStorage domain.SessionStorage
 	jwtService     domain.JWTService
 }
 
-func NewSessionUseCase(sessionStorage domain.SessionStorage, jwtService domain.JWTService) domain.SessionUseCase {
+func NewSessionUseCase(cfg *config.Config, sessionStorage domain.SessionStorage, jwtService domain.JWTService) domain.SessionUseCase {
 	return &sessionUseCaseImpl{
+		cfg:            cfg,
 		sessionStorage: sessionStorage,
 		jwtService:     jwtService,
 	}
@@ -33,7 +35,7 @@ func (s *sessionUseCaseImpl) Create(ctx context.Context, rq *domain.CreateSessio
 		Name:      rq.Name,
 		Type:      rq.Type,
 		Token:     token,
-		ExpiresAt: time.Now().Add(s.config.SessionTTL),
+		ExpiresAt: time.Now().Add(s.cfg.SessionTTL),
 	}
 
 	err = s.sessionStorage.Create(ctx, session)

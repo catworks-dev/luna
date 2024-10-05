@@ -129,11 +129,15 @@ func (s *sessionServiceApi) sessionToRpcReference(session *domain.Session) *prot
 
 func (s *sessionServiceApi) sessionFromAuth(ctx context.Context) (*domain.Session, error) {
 	md, _ := metadata.FromIncomingContext(ctx)
-	token := md.Get("authorization")[0]
+	auth := md.Get("authorization")
+	if len(auth) == 0 {
+		return nil, status.Error(codes.Unauthenticated, "No token provided")
+	}
+	token := auth[0]
 
 	session, err := s.sessionUc.GetByToken(ctx, token)
 	if err != nil {
-		return nil, status.Error(codes.Unauthenticated, "No valid token provided")
+		return nil, status.Error(codes.Unauthenticated, "Unknown session")
 	}
 
 	return session, nil
