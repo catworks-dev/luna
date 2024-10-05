@@ -9,9 +9,9 @@ import (
 
 type Session struct {
 	Id        string            `gorm:"primaryKey"`
-	Name      string            `gorm:"not null" gorm:"unique"`
-	Type      domain.DeviceType `gorm:"not null" gorm:"type:enum('MOBILE', 'TV')"`
-	Token     string            `gorm:"not null" gorm:"uniqueIndex"`
+	Name      string            `gorm:"not null;unique"`
+	Type      domain.DeviceType `gorm:"not null;type:DeviceType"`
+	Token     string            `gorm:"not null;uniqueIndex"`
 	ExpiresAt time.Time         `gorm:"not null"`
 }
 
@@ -71,11 +71,11 @@ func (s sessionStorageImpl) Update(ctx context.Context, session *domain.Session)
 }
 
 func (s sessionStorageImpl) Delete(ctx context.Context, id string) error {
-	return s.db.WithContext(ctx).Delete(&Session{}, id).Error
+	return s.db.WithContext(ctx).Where("id = ?", id).Delete(&Session{}).Error
 }
 
 func (s sessionStorageImpl) DeleteByToken(ctx context.Context, token string) error {
-	return s.db.WithContext(ctx).Delete(&Session{}, "token = ?", token).Error
+	return s.db.WithContext(ctx).Where("token = ?", token).Delete(&Session{}).Error
 }
 
 func (s sessionStorageImpl) sessionFromDomain(session *domain.Session) *Session {
