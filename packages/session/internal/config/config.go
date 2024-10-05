@@ -14,6 +14,7 @@ type Config struct {
 	LogLevel    string        `yaml:"log_level" env-default:"info"`
 	Version     string        `yaml:"version" env-default:"v0.1.0"`
 	JwtSecret   string        `yaml:"jwt_secret" env-required:"true"`
+	logDB       bool          `yaml:"log_db" env-default:"false"`
 }
 
 type GrpcConfig struct {
