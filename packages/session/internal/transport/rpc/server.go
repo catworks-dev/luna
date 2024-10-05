@@ -3,29 +3,34 @@ package rpc
 import (
 	"catworks/luna/session/internal/config"
 	"catworks/luna/session/pkg/protogo"
-	"context"
 	"fmt"
 	"github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
-	"google.golang.org/protobuf/types/known/emptypb"
 	"net"
 )
 
 type Server struct {
-	Srv    *grpc.Server
+	Srv *grpc.Server
+	cfg config.GrpcConfig
+
+	session *sessionServiceApi
+}
+
+type sessionServiceApi struct {
 	config *config.Config
 	logger *logrus.Logger
 
 	protogo.UnimplementedSessionServiceServer
 }
 
-func NewServer(config *config.Config, logger *logrus.Logger) *Server {
+func NewServer(cfg *config.Config, logger *logrus.Logger) *Server {
 	s := &Server{
-		config: config,
-		logger: logger,
+		cfg: cfg.Grpc,
+		session: &sessionServiceApi{
+			config: cfg,
+			logger: logger,
+		},
 	}
 	s.Srv = grpc.NewServer(
 		grpc.ChainUnaryInterceptor(
@@ -40,11 +45,11 @@ func NewServer(config *config.Config, logger *logrus.Logger) *Server {
 }
 
 func (s Server) Register() {
-	protogo.RegisterSessionServiceServer(s.Srv, s)
+	protogo.RegisterSessionServiceServer(s.Srv, s.session)
 }
 
 func (s Server) Start() error {
-	l, err := net.Listen("tcp", fmt.Sprintf("localhost:%d", s.config.Grpc.Port))
+	l, err := net.Listen("tcp", fmt.Sprintf("localhost:%d", s.cfg.Port))
 	if err != nil {
 		return err
 	}
@@ -59,36 +64,4 @@ func (s Server) Start() error {
 
 func (s Server) Stop() {
 	s.Srv.Stop()
-}
-
-func (s Server) StartSession(ctx context.Context, rq *protogo.StartSessionRq) (*protogo.SessionData, error) {
-	return nil, status.Error(codes.Unimplemented, "method not implemented")
-}
-
-func (s Server) GetCurrentSession(ctx context.Context, empty *emptypb.Empty) (*protogo.SessionData, error) {
-	return nil, status.Error(codes.Unimplemented, "method not implemented")
-}
-
-func (s Server) RenameSession(ctx context.Context, rq *protogo.RenameSessionRq) (*emptypb.Empty, error) {
-	return nil, status.Error(codes.Unimplemented, "method not implemented")
-}
-
-func (s Server) ListSessions(ctx context.Context, empty *emptypb.Empty) (*protogo.SessionList, error) {
-	return nil, status.Error(codes.Unimplemented, "method not implemented")
-}
-
-func (s Server) Logout(ctx context.Context, empty *emptypb.Empty) (*emptypb.Empty, error) {
-	return nil, status.Error(codes.Unimplemented, "method not implemented")
-}
-
-func (s Server) GetInfo(_ context.Context, _ *emptypb.Empty) (*protogo.ServiceInfo, error) {
-	return &protogo.ServiceInfo{
-		Name:    "luna.session",
-		Version: s.config.Version,
-	}, nil
-}
-
-func (s Server) mustEmbedUnimplementedSessionServiceServer() {
-	//TODO implement me
-	panic("implement me")
 }
